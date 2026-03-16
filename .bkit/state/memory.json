@@ -1,0 +1,19 @@
+{
+  "project": {
+    "name": "meetie",
+    "level": "dynamic",
+    "type": "SaaS/비즈니스 툴",
+    "bkit_version": "1.6.1",
+    "initialized_at": "2026-03-16",
+    "stack": {
+      "frontend": "Next.js 14+, TypeScript, Tailwind CSS",
+      "backend": "bkend.ai BaaS",
+      "state": "Zustand + TanStack Query",
+      "deployment": "Vercel + bkend.ai"
+    }
+  },
+  "pdca": {
+    "current_phase": "plan",
+    "features": []
+  }
+}
