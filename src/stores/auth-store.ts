@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { bkend } from '@/lib/bkend';
+import { supabase } from '@/lib/supabase';
 
 interface User {
   id: string;
@@ -25,10 +25,10 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string) => {
         set({ isLoading: true });
         try {
-          const { user, accessToken, refreshToken } = await bkend.auth.signin({ email, password });
-          localStorage.setItem('bkend_access_token', accessToken);
-          localStorage.setItem('bkend_refresh_token', refreshToken);
-          set({ user, isLoading: false });
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          const u = data.user;
+          set({ user: { id: u.id, email: u.email!, name: u.user_metadata?.name }, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -36,20 +36,16 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        try {
-          await bkend.auth.signout();
-        } finally {
-          localStorage.removeItem('bkend_access_token');
-          localStorage.removeItem('bkend_refresh_token');
-          set({ user: null });
-        }
+        await supabase.auth.signOut();
+        set({ user: null });
       },
 
       fetchMe: async () => {
-        try {
-          const user = await bkend.auth.me();
-          set({ user });
-        } catch {
+        const { data } = await supabase.auth.getUser();
+        if (data.user) {
+          const u = data.user;
+          set({ user: { id: u.id, email: u.email!, name: u.user_metadata?.name } });
+        } else {
           set({ user: null });
         }
       },

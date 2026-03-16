@@ -1,22 +1,16 @@
-// Base document interface (bkend.ai auto-generated fields)
+// Base document interface (Supabase auto-generated fields)
 export interface BaseDocument {
-  _id: string;
-  createdAt: string;
-  updatedAt: string;
+  id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // User
-export interface User extends BaseDocument {
+export interface User {
+  id: string;
   email: string;
   name?: string;
-  avatarUrl?: string;
-}
-
-// Auth responses
-export interface AuthResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
+  avatar_url?: string;
 }
 
 // API error

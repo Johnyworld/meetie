@@ -8,7 +8,7 @@
 
 ## Tech Stack
 - **Frontend**: Next.js 14+ (App Router), TypeScript, Tailwind CSS
-- **Backend**: bkend.ai BaaS (REST API, MongoDB, JWT Auth)
+- **Backend**: Supabase (PostgreSQL, Auth, Realtime)
 - **State**: Zustand + TanStack Query
 - **Deployment**: Vercel (frontend) + bkend.ai (backend)
 
@@ -21,7 +21,7 @@
 - TypeScript strict mode
 - Functional components only (no class components)
 - Custom hooks for business logic
-- `bkend.ts` client for all API calls
+- `supabase.ts` client for all API calls
 - Environment variables via `.env.local`
 
 ## Project Structure
