@@ -20,14 +20,16 @@ export function useVideoRoom(roomId: string) {
         setIsLoading(false);
       });
 
-    // Realtime DB 구독 - 다른 유저의 변경사항 실시간 반영
+    // Realtime DB 구독 - 다른 유저의 변경사항 실시간 반영 (클라이언트 필터링)
     const subscription = supabase
       .channel(`room-db:${roomId}`)
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'video_rooms', filter: `id=eq.${roomId}` },
+        { event: 'UPDATE', schema: 'public', table: 'video_rooms' },
         (payload) => {
-          setRoom(payload.new as VideoRoom);
+          const updated = payload.new as VideoRoom;
+          if (updated.id !== roomId) return;
+          setRoom(updated);
         }
       )
       .subscribe();
@@ -72,27 +74,23 @@ export function useVideoRoom(roomId: string) {
 
   // 다른 유저가 강제 종료 시 해당 유저를 participants에서 제거
   const removeParticipant = useCallback(async (participantId: string) => {
-    console.log('[removeParticipant] called for:', participantId);
-    const { data: current, error } = await supabase
+    const { data: current } = await supabase
       .from('video_rooms')
       .select('participants')
       .eq('id', roomId)
       .single();
-    console.log('[removeParticipant] current data:', current, 'error:', error);
     if (!current) return;
     const remaining = current.participants.filter((id: string) => id !== participantId);
-    console.log('[removeParticipant] remaining:', remaining);
-    const { error: updateError } = await supabase
-      .from('video_rooms')
-      .update({
-        participants: remaining,
-        ...(remaining.length === 0 && {
-          status: 'ended',
-          ended_at: new Date().toISOString(),
-        }),
-      })
-      .eq('id', roomId);
-    console.log('[removeParticipant] update error:', updateError);
+    const update = {
+      participants: remaining,
+      ...(remaining.length === 0 && {
+        status: 'ended' as const,
+        ended_at: new Date().toISOString(),
+      }),
+    };
+    await supabase.from('video_rooms').update(update).eq('id', roomId);
+    // Realtime 외에 로컬 state도 즉시 반영
+    setRoom((prev) => (prev ? { ...prev, ...update } : prev));
   }, [roomId]);
 
   const endRoom = useCallback(async () => {
@@ -109,5 +107,12 @@ export function useVideoRoom(roomId: string) {
     if (data) setRoom(data);
   }, [roomId]);
 
-  return { room, isLoading, joinRoom, leaveRoom, removeParticipant, endRoom };
+  const addParticipant = useCallback((participantId: string) => {
+    setRoom((prev) => {
+      if (!prev || prev.participants.includes(participantId)) return prev;
+      return { ...prev, participants: [...prev.participants, participantId] };
+    });
+  }, []);
+
+  return { room, isLoading, joinRoom, leaveRoom, addParticipant, removeParticipant, endRoom };
 }

@@ -11,6 +11,7 @@ import { VideoGrid } from './VideoGrid';
 import { LocalVideo } from './LocalVideo';
 import { ControlBar } from './ControlBar';
 import { ChatPanel } from './ChatPanel';
+import { ParticipantList } from './ParticipantList';
 import { useChatMessages } from '@/hooks/useChatMessages';
 
 interface VideoRoomPageProps {
@@ -20,7 +21,7 @@ interface VideoRoomPageProps {
 
 export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
   const router = useRouter();
-  const { room, isLoading, joinRoom, leaveRoom, removeParticipant } = useVideoRoom(roomId);
+  const { room, isLoading, joinRoom, leaveRoom, addParticipant, removeParticipant } = useVideoRoom(roomId);
 
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -41,12 +42,16 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
     handleAnswer: (_from: string, _sdp: RTCSessionDescriptionInit) => {},
     handleIceCandidate: (_from: string, _candidate: RTCIceCandidateInit) => {},
     closePeer: (_userId: string) => {},
+    addParticipant: (_userId: string) => {},
     removeParticipant: (_userId: string) => {},
   });
 
   const handleSignalMessage = useCallback((msg: ServerSignalMessage) => {
     switch (msg.type) {
-      case 'user-joined':   handlersRef.current.createOffer(msg.userId); break;
+      case 'user-joined':
+        handlersRef.current.createOffer(msg.userId);
+        handlersRef.current.addParticipant(msg.userId);
+        break;
       case 'offer':         handlersRef.current.handleOffer(msg.from, msg.sdp); break;
       case 'answer':        handlersRef.current.handleAnswer(msg.from, msg.sdp); break;
       case 'ice-candidate': handlersRef.current.handleIceCandidate(msg.from, msg.candidate); break;
@@ -62,7 +67,7 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
     useWebRTC(localStream, userId, signaling);
 
   // 매 렌더마다 ref 최신화
-  handlersRef.current = { createOffer, handleOffer, handleAnswer, handleIceCandidate, closePeer, removeParticipant };
+  handlersRef.current = { createOffer, handleOffer, handleAnswer, handleIceCandidate, closePeer, addParticipant, removeParticipant };
 
   // 브라우저 강제 종료 시 sendBeacon으로 서버에 퇴장 알림
   useEffect(() => {
@@ -167,6 +172,7 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
       {/* 영상 영역 */}
       <div className="relative flex-1 overflow-hidden">
         <VideoGrid remoteStreams={remoteStreams} />
+        <ParticipantList participants={room.participants} currentUserId={userId} />
         <LocalVideo stream={localStream} isCameraOn={isCameraOn} />
         <ControlBar
           isCameraOn={isCameraOn}

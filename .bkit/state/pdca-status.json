@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-16T12:25:04.007Z",
+  "lastUpdated": "2026-03-16T12:54:11.349Z",
   "activeFeatures": [
     "video-chat",
     "meetie",
@@ -22,10 +22,10 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T00:00:00Z",
-        "lastUpdated": "2026-03-16T12:06:17.941Z"
+        "lastUpdated": "2026-03-16T12:54:11.349Z"
       },
       "phaseNumber": 3,
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/video-chat/MessageList.tsx"
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/video-chat/VideoRoomPage.tsx"
     },
     "meetie": {
       "phase": "do",
@@ -36,9 +36,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T02:56:19.614Z",
-        "lastUpdated": "2026-03-16T12:25:04.007Z"
+        "lastUpdated": "2026-03-16T12:53:26.525Z"
       },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/hooks/useChatMessages.ts"
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/hooks/useVideoRoom.ts"
     },
     "[roomId]": {
       "phase": "do",
@@ -101,7 +101,7 @@
   "session": {
     "startedAt": "2026-03-16T02:52:52.065Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-16T12:25:04.007Z"
+    "lastActivity": "2026-03-16T12:54:11.349Z"
   },
   "history": [
     {
@@ -545,6 +545,84 @@
     {
       "timestamp": "2026-03-16T12:25:04.007Z",
       "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:35:20.101Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:35:25.686Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:41:37.184Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:41:44.951Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:41:54.047Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:42:00.780Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:42:09.673Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:48:15.997Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:51:43.669Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:53:26.525Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:53:42.376Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:53:49.305Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T12:54:11.349Z",
+      "feature": "video-chat",
       "phase": "do",
       "action": "updated"
     }
