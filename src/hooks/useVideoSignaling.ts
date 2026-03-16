@@ -4,11 +4,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ServerSignalMessage } from '@/types/video-chat';
 
-export function useVideoSignaling(
-  roomId: string,
-  userId: string,
-  onMessage: (msg: ServerSignalMessage) => void,
-) {
+export function useVideoSignaling(roomId: string, userId: string, onMessage: (msg: ServerSignalMessage) => void) {
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const onMessageRef = useRef(onMessage);
   onMessageRef.current = onMessage;
@@ -26,7 +22,8 @@ export function useVideoSignaling(
       // Presence: 브라우저 강제 종료 포함 disconnect 자동 감지
       .on('presence', { event: 'join' }, ({ newPresences }) => {
         console.log('[Presence] join raw:', JSON.stringify(newPresences));
-        newPresences.forEach((p: { userId: string }) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        newPresences.forEach((p: any) => {
           if (p.userId !== userId) {
             onMessageRef.current({ type: 'user-joined', userId: p.userId, participants: [] });
           }
@@ -34,7 +31,8 @@ export function useVideoSignaling(
       })
       .on('presence', { event: 'leave' }, ({ leftPresences }) => {
         console.log('[Presence] leave raw:', JSON.stringify(leftPresences));
-        leftPresences.forEach((p: { userId: string }) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        leftPresences.forEach((p: any) => {
           if (p.userId !== userId) {
             console.log('[Presence] user left, calling removeParticipant for:', p.userId);
             onMessageRef.current({ type: 'user-left', userId: p.userId, participants: [] });
@@ -57,7 +55,7 @@ export function useVideoSignaling(
           onMessageRef.current({ type: 'ice-candidate', from: payload.from, candidate: payload.candidate });
         }
       })
-      .subscribe(async (status) => {
+      .subscribe(async status => {
         console.log('[Signaling] channel status:', status);
         if (status === 'SUBSCRIBED') {
           isSubscribed.current = true;
@@ -74,17 +72,26 @@ export function useVideoSignaling(
     };
   }, [roomId, userId]);
 
-  const sendOffer = useCallback((to: string, sdp: RTCSessionDescriptionInit) => {
-    channelRef.current?.send({ type: 'broadcast', event: 'offer', payload: { from: userId, to, sdp } });
-  }, [userId]);
+  const sendOffer = useCallback(
+    (to: string, sdp: RTCSessionDescriptionInit) => {
+      channelRef.current?.send({ type: 'broadcast', event: 'offer', payload: { from: userId, to, sdp } });
+    },
+    [userId],
+  );
 
-  const sendAnswer = useCallback((to: string, sdp: RTCSessionDescriptionInit) => {
-    channelRef.current?.send({ type: 'broadcast', event: 'answer', payload: { from: userId, to, sdp } });
-  }, [userId]);
+  const sendAnswer = useCallback(
+    (to: string, sdp: RTCSessionDescriptionInit) => {
+      channelRef.current?.send({ type: 'broadcast', event: 'answer', payload: { from: userId, to, sdp } });
+    },
+    [userId],
+  );
 
-  const sendIceCandidate = useCallback((to: string, candidate: RTCIceCandidateInit) => {
-    channelRef.current?.send({ type: 'broadcast', event: 'ice-candidate', payload: { from: userId, to, candidate } });
-  }, [userId]);
+  const sendIceCandidate = useCallback(
+    (to: string, candidate: RTCIceCandidateInit) => {
+      channelRef.current?.send({ type: 'broadcast', event: 'ice-candidate', payload: { from: userId, to, candidate } });
+    },
+    [userId],
+  );
 
   return {
     isConnected: isSubscribed.current,

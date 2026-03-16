@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-16T13:01:00.498Z",
+  "lastUpdated": "2026-03-16T13:05:14.879Z",
   "activeFeatures": [
     "video-chat",
     "meetie",
@@ -36,9 +36,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T02:56:19.614Z",
-        "lastUpdated": "2026-03-16T13:01:00.498Z"
+        "lastUpdated": "2026-03-16T13:05:14.879Z"
       },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/hooks/useChatMessages.ts"
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/hooks/useVideoSignaling.ts"
     },
     "[roomId]": {
       "phase": "do",
@@ -101,7 +101,7 @@
   "session": {
     "startedAt": "2026-03-16T02:52:52.065Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-16T13:01:00.498Z"
+    "lastActivity": "2026-03-16T13:05:14.879Z"
   },
   "history": [
     {
@@ -628,6 +628,18 @@
     },
     {
       "timestamp": "2026-03-16T13:01:00.498Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T13:05:04.256Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T13:05:14.879Z",
       "feature": "meetie",
       "phase": "do",
       "action": "updated"
