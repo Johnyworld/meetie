@@ -16,18 +16,32 @@ export function useVideoSignaling(
 
   useEffect(() => {
     const channel = supabase.channel(`video-room:${roomId}`, {
-      config: { broadcast: { self: false } },
+      config: {
+        broadcast: { self: false },
+        presence: { key: userId },
+      },
     });
 
     channel
-      .on('broadcast', { event: 'user-joined' }, ({ payload }) => {
-        if (payload.userId !== userId) {
-          onMessageRef.current({ type: 'user-joined', userId: payload.userId, participants: payload.participants });
-        }
+      // Presence: 브라우저 강제 종료 포함 disconnect 자동 감지
+      .on('presence', { event: 'join' }, ({ newPresences }) => {
+        console.log('[Presence] join raw:', JSON.stringify(newPresences));
+        newPresences.forEach((p: { userId: string }) => {
+          if (p.userId !== userId) {
+            onMessageRef.current({ type: 'user-joined', userId: p.userId, participants: [] });
+          }
+        });
       })
-      .on('broadcast', { event: 'user-left' }, ({ payload }) => {
-        onMessageRef.current({ type: 'user-left', userId: payload.userId, participants: payload.participants });
+      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        console.log('[Presence] leave raw:', JSON.stringify(leftPresences));
+        leftPresences.forEach((p: { userId: string }) => {
+          if (p.userId !== userId) {
+            console.log('[Presence] user left, calling removeParticipant for:', p.userId);
+            onMessageRef.current({ type: 'user-left', userId: p.userId, participants: [] });
+          }
+        });
       })
+      // WebRTC 시그널링 (P2P 메시지)
       .on('broadcast', { event: 'offer' }, ({ payload }) => {
         if (payload.to === userId) {
           onMessageRef.current({ type: 'offer', from: payload.from, sdp: payload.sdp });
@@ -43,25 +57,18 @@ export function useVideoSignaling(
           onMessageRef.current({ type: 'ice-candidate', from: payload.from, candidate: payload.candidate });
         }
       })
-      .subscribe((status) => {
+      .subscribe(async (status) => {
+        console.log('[Signaling] channel status:', status);
         if (status === 'SUBSCRIBED') {
           isSubscribed.current = true;
-          channel.send({
-            type: 'broadcast',
-            event: 'user-joined',
-            payload: { userId, participants: [] },
-          });
+          const trackResult = await channel.track({ userId });
+          console.log('[Signaling] track result:', trackResult);
         }
       });
 
     channelRef.current = channel;
 
     return () => {
-      channel.send({
-        type: 'broadcast',
-        event: 'user-left',
-        payload: { userId, participants: [] },
-      });
       supabase.removeChannel(channel);
       isSubscribed.current = false;
     };

@@ -18,7 +18,7 @@ interface VideoRoomPageProps {
 
 export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
   const router = useRouter();
-  const { room, isLoading, joinRoom, leaveRoom } = useVideoRoom(roomId);
+  const { room, isLoading, joinRoom, leaveRoom, removeParticipant } = useVideoRoom(roomId);
 
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -32,6 +32,7 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
     handleAnswer: (_from: string, _sdp: RTCSessionDescriptionInit) => {},
     handleIceCandidate: (_from: string, _candidate: RTCIceCandidateInit) => {},
     closePeer: (_userId: string) => {},
+    removeParticipant: (_userId: string) => {},
   });
 
   const handleSignalMessage = useCallback((msg: ServerSignalMessage) => {
@@ -40,7 +41,10 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
       case 'offer':         handlersRef.current.handleOffer(msg.from, msg.sdp); break;
       case 'answer':        handlersRef.current.handleAnswer(msg.from, msg.sdp); break;
       case 'ice-candidate': handlersRef.current.handleIceCandidate(msg.from, msg.candidate); break;
-      case 'user-left':     handlersRef.current.closePeer(msg.userId); break;
+      case 'user-left':
+        handlersRef.current.closePeer(msg.userId);
+        handlersRef.current.removeParticipant(msg.userId);
+        break;
     }
   }, []);
 
@@ -49,7 +53,19 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
     useWebRTC(localStream, userId, signaling);
 
   // 매 렌더마다 ref 최신화
-  handlersRef.current = { createOffer, handleOffer, handleAnswer, handleIceCandidate, closePeer };
+  handlersRef.current = { createOffer, handleOffer, handleAnswer, handleIceCandidate, closePeer, removeParticipant };
+
+  // 브라우저 강제 종료 시 sendBeacon으로 서버에 퇴장 알림
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      navigator.sendBeacon(
+        '/api/rooms/leave',
+        new Blob([JSON.stringify({ roomId, userId })], { type: 'application/json' }),
+      );
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [roomId, userId]);
 
   // 로컬 스트림 초기화
   useEffect(() => {

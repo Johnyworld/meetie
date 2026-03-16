@@ -9,6 +9,7 @@ export function useVideoRoom(roomId: string) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // 초기 fetch
     supabase
       .from('video_rooms')
       .select('*')
@@ -18,6 +19,22 @@ export function useVideoRoom(roomId: string) {
         setRoom(data);
         setIsLoading(false);
       });
+
+    // Realtime DB 구독 - 다른 유저의 변경사항 실시간 반영
+    const subscription = supabase
+      .channel(`room-db:${roomId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'video_rooms', filter: `id=eq.${roomId}` },
+        (payload) => {
+          setRoom(payload.new as VideoRoom);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, [roomId]);
 
   const joinRoom = useCallback(async (userId: string) => {
@@ -53,6 +70,31 @@ export function useVideoRoom(roomId: string) {
     if (data) setRoom(data);
   }, [room, roomId]);
 
+  // 다른 유저가 강제 종료 시 해당 유저를 participants에서 제거
+  const removeParticipant = useCallback(async (participantId: string) => {
+    console.log('[removeParticipant] called for:', participantId);
+    const { data: current, error } = await supabase
+      .from('video_rooms')
+      .select('participants')
+      .eq('id', roomId)
+      .single();
+    console.log('[removeParticipant] current data:', current, 'error:', error);
+    if (!current) return;
+    const remaining = current.participants.filter((id: string) => id !== participantId);
+    console.log('[removeParticipant] remaining:', remaining);
+    const { error: updateError } = await supabase
+      .from('video_rooms')
+      .update({
+        participants: remaining,
+        ...(remaining.length === 0 && {
+          status: 'ended',
+          ended_at: new Date().toISOString(),
+        }),
+      })
+      .eq('id', roomId);
+    console.log('[removeParticipant] update error:', updateError);
+  }, [roomId]);
+
   const endRoom = useCallback(async () => {
     const { data } = await supabase
       .from('video_rooms')
@@ -67,5 +109,5 @@ export function useVideoRoom(roomId: string) {
     if (data) setRoom(data);
   }, [roomId]);
 
-  return { room, isLoading, joinRoom, leaveRoom, endRoom };
+  return { room, isLoading, joinRoom, leaveRoom, removeParticipant, endRoom };
 }

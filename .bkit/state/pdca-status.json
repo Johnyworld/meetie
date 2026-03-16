@@ -1,12 +1,13 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-16T08:21:22.908Z",
+  "lastUpdated": "2026-03-16T09:34:11.371Z",
   "activeFeatures": [
     "video-chat",
     "meetie",
     "[roomId]",
     "[...path]",
-    "stores"
+    "stores",
+    "leave"
   ],
   "primaryFeature": "meetie",
   "features": {
@@ -21,7 +22,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T00:00:00Z",
-        "lastUpdated": "2026-03-16T08:21:22.908Z"
+        "lastUpdated": "2026-03-16T09:34:11.371Z"
       },
       "phaseNumber": 3,
       "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/video-chat/VideoRoomPage.tsx"
@@ -35,9 +36,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T02:56:19.614Z",
-        "lastUpdated": "2026-03-16T07:46:39.447Z"
+        "lastUpdated": "2026-03-16T09:27:03.775Z"
       },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/lib/supabase.ts"
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/hooks/useVideoRoom.ts"
     },
     "[roomId]": {
       "phase": "do",
@@ -77,6 +78,19 @@
         "lastUpdated": "2026-03-16T06:13:40.943Z"
       },
       "lastFile": "/Users/gimjaehwan/dev/meetie/src/stores/auth-store.ts"
+    },
+    "leave": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-16T09:34:01.071Z",
+        "lastUpdated": "2026-03-16T09:34:01.071Z"
+      },
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/api/rooms/leave/route.ts"
     }
   },
   "pipeline": {
@@ -87,7 +101,7 @@
   "session": {
     "startedAt": "2026-03-16T02:52:52.065Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-16T08:21:22.908Z"
+    "lastActivity": "2026-03-16T09:34:11.371Z"
   },
   "history": [
     {
@@ -368,6 +382,72 @@
     },
     {
       "timestamp": "2026-03-16T08:21:22.908Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:21:01.835Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:21:16.640Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:21:21.998Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:21:27.513Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:21:31.738Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:21:36.381Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:26:48.338Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:26:55.187Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:27:03.775Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:34:01.072Z",
+      "feature": "leave",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-16T09:34:11.371Z",
       "feature": "video-chat",
       "phase": "do",
       "action": "updated"
