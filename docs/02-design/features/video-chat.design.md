@@ -1,22 +1,22 @@
-# video-chat Design Document (v2)
+# video-chat Design Document (v3)
 
 ## Executive Summary
 
 | 항목 | 내용 |
 |------|------|
 | Feature | video-chat |
-| 작성일 | 2026-03-16 (v2 업데이트) |
+| 작성일 | 2026-03-16 (v3 업데이트) |
 | Phase | Design |
-| 참조 Plan | docs/01-plan/features/video-chat.plan.md (v2) |
+| 참조 Plan | docs/01-plan/features/video-chat.plan.md (v3) |
 
 ### Value Delivered (4-Perspective)
 
 | 관점 | 내용 |
 |------|------|
-| **Problem** | 화상 통화에 외부 툴이 필요하고, 초대 없이 자유롭게 대화할 수 있는 공간이 없다 |
-| **Solution** | 메인 화면에서 누구나 채팅방 생성 + 공개 리스트에서 자유 입장 |
-| **Function & UX Effect** | 방 만들기 모달 → 채팅방 카드 리스트 → 1클릭 입장의 3단계 UX |
-| **Core Value** | meetie를 오픈 화상 채팅 플랫폼으로 확장 |
+| **Problem** | 화상 통화에 외부 툴이 필요하고, 통화 중 텍스트로 링크나 메모를 공유할 방법이 없다 |
+| **Solution** | 메인 화면에서 누구나 채팅방 생성 + 화상 통화 중 실시간 텍스트 채팅 패널 제공 |
+| **Function & UX Effect** | 방 만들기 → 입장 → 화상+텍스트 채팅 병행의 통합 소통 UX |
+| **Core Value** | meetie를 화상+텍스트 채팅을 한 화면에서 즐기는 통합 오픈 채팅 플랫폼으로 확장 |
 
 ---
 
@@ -26,6 +26,7 @@
 |------|------|----------|
 | v1 | 2026-03-16 | 초기 Design (미팅 연동, 초대 기반) |
 | v2 | 2026-03-16 | 메인 페이지 채팅방 리스트 + 오픈 입장으로 전면 개편 |
+| v3 | 2026-03-16 | **방 내 텍스트 채팅** (ChatMessage, ChatPanel, useChatMessages) 추가 |
 
 ---
 
@@ -41,24 +42,31 @@
 │  └─ CreateRoomModal (방 이름 입력 → POST)                │
 │       └─ redirect → /rooms/:roomId                      │
 │                                                         │
-│  VideoRoom 페이지 (/rooms/[roomId])                     │
-│  ├─ useVideoRoom     (방 상태 CRUD)                     │
-│  ├─ useVideoSignaling (WebSocket 시그널링)               │
-│  ├─ useWebRTC        (Peer 연결, 미디어 스트림)          │
-│  └─ VideoRoomUI                                         │
-│      ├─ VideoGrid    (원격 참여자 비디오)                 │
-│      ├─ LocalVideo   (내 화면 PiP)                      │
-│      └─ ControlBar   (카메라/마이크/화면공유/종료)        │
-└─────────────────────────────────────────────────────────┘
-          │ REST (방 목록/생성/업데이트)   │ WebSocket (시그널링)
-          ▼                               ▼
-    ┌──────────────────────────────────────────┐
-    │            bkend.ai                      │
-    │  GET /data/video-rooms  (리스트)         │
-    │  POST /data/video-rooms (생성)           │
-    │  PATCH /data/video-rooms/:id (업데이트)  │
-    │  WS /ws/video-rooms/:id (시그널링)       │
-    └──────────────────────────────────────────┘
+│  VideoRoom 페이지 (/rooms/[roomId])                         │
+│  ├─ useVideoRoom      (방 상태 CRUD)                        │
+│  ├─ useVideoSignaling (WebSocket 시그널링)                  │
+│  ├─ useWebRTC         (Peer 연결, 미디어 스트림)            │
+│  ├─ useChatMessages   (채팅 메시지 CRUD + 실시간) ← NEW v3  │
+│  └─ VideoRoomUI                                             │
+│      ├─ VideoArea                                           │
+│      │   ├─ VideoGrid   (원격 참여자 비디오)                │
+│      │   ├─ LocalVideo  (내 화면 PiP)                      │
+│      │   └─ ControlBar  (카메라/마이크/화면공유/채팅/종료)  │
+│      └─ ChatPanel (우측, 토글) ← NEW v3                    │
+│          ├─ MessageList  (메시지 목록)                      │
+│          └─ MessageInput (입력창 + 전송)                    │
+└─────────────────────────────────────────────────────────────┘
+       │ REST (방 목록/생성/업데이트/채팅)  │ WebSocket (시그널링)
+       ▼                                   ▼
+    ┌──────────────────────────────────────────────────┐
+    │                  bkend.ai                        │
+    │  GET  /data/video-rooms         (방 리스트)      │
+    │  POST /data/video-rooms         (방 생성)        │
+    │  PATCH /data/video-rooms/:id    (방 업데이트)    │
+    │  WS   /ws/video-rooms/:id       (시그널링)       │
+    │  GET  /data/chat-messages?roomId=:id ← NEW v3   │
+    │  POST /data/chat-messages            ← NEW v3   │
+    └──────────────────────────────────────────────────┘
 ```
 
 ---
@@ -87,7 +95,30 @@ interface VideoRoom {
 
 **인덱스**: `status`, `createdAt` (리스트 정렬용)
 
-### 2.2 WebSocket 시그널링 메시지 (v1과 동일)
+### 2.2 ChatMessage (NEW v3 - bkend.ai 테이블)
+
+```typescript
+interface ChatMessage {
+  _id: string;
+  roomId: string;        // VideoRoom._id 참조
+  senderId: string;      // getTempUserId() 또는 auth userId
+  senderName: string;    // 표시 이름 (e.g. "user_abc123")
+  content: string;       // 메시지 본문 (최대 500자)
+  createdAt: string;     // ISO 8601
+}
+```
+
+**bkend.ai 테이블명**: `chat-messages`
+
+**인덱스**: `roomId`, `createdAt` (방별 시간순 조회용)
+
+**조회 전략**:
+- 입장 시 최근 50건 로드 (`GET /data/chat-messages?roomId=:id&sort=-createdAt&limit=50`)
+- 이후 3초 polling으로 신규 메시지 갱신 (`createdAt > lastFetched`)
+
+---
+
+### 2.3 WebSocket 시그널링 메시지 (v1과 동일)
 
 ```typescript
 type ClientSignalMessage =
@@ -107,7 +138,7 @@ type ServerSignalMessage =
 
 ---
 
-## 3. 파일 구조 (v2 변경사항)
+## 3. 파일 구조 (v3 변경사항)
 
 ```
 src/
@@ -120,20 +151,25 @@ src/
 ├── components/
 │   └── features/
 │       └── video-chat/
-│           ├── VideoRoomList.tsx          # 공개 채팅방 목록 ← NEW
-│           ├── VideoRoomCard.tsx          # 채팅방 카드 컴포넌트 ← NEW
-│           ├── CreateRoomModal.tsx        # 방 만들기 모달 ← NEW
-│           ├── VideoRoomPage.tsx          # 기존 유지 (userId 처리 수정)
+│           ├── VideoRoomList.tsx          # 공개 채팅방 목록 (v2)
+│           ├── VideoRoomCard.tsx          # 채팅방 카드 컴포넌트 (v2)
+│           ├── CreateRoomModal.tsx        # 방 만들기 모달 (v2)
+│           ├── VideoRoomPage.tsx          # 수정: ChatPanel + 레이아웃 변경 ← v3
 │           ├── VideoGrid.tsx              # 기존 유지
 │           ├── LocalVideo.tsx             # 기존 유지
-│           ├── ControlBar.tsx             # 기존 유지
+│           ├── ControlBar.tsx             # 수정: 채팅 토글 버튼 추가 ← v3
+│           ├── ChatPanel.tsx              # NEW v3: 채팅 패널 컨테이너
+│           ├── MessageList.tsx            # NEW v3: 메시지 목록
+│           ├── MessageItem.tsx            # NEW v3: 개별 메시지 행
+│           ├── MessageInput.tsx           # NEW v3: 텍스트 입력 + 전송
 │           └── VideoStartButton.tsx       # 미사용 (삭제 가능)
 │
 ├── hooks/
-│   ├── useVideoRoomList.ts                # 공개 방 목록 polling ← NEW
-│   ├── useVideoRoom.ts                    # 수정 (name 필드, meetingId 제거)
+│   ├── useVideoRoomList.ts                # 공개 방 목록 polling (v2)
+│   ├── useVideoRoom.ts                    # 수정 (name 필드, meetingId 제거) (v2)
 │   ├── useVideoSignaling.ts               # 기존 유지
-│   └── useWebRTC.ts                       # 기존 유지
+│   ├── useWebRTC.ts                       # 기존 유지
+│   └── useChatMessages.ts                 # NEW v3: 채팅 메시지 CRUD + polling
 │
 ├── lib/
 │   ├── bkend.ts                           # 기존 유지
@@ -141,7 +177,8 @@ src/
 │
 └── types/
     ├── index.ts                           # 기존 유지
-    └── video-chat.ts                      # VideoRoom 타입 수정 (name 추가, meetingId 제거)
+    ├── video-chat.ts                      # VideoRoom 타입 (v2)
+    └── chat.ts                            # NEW v3: ChatMessage 타입
 ```
 
 ---
@@ -243,9 +280,67 @@ function useVideoRoom(roomId: string) {
 }
 ```
 
+### 5.3 useChatMessages (NEW v3)
+
+```typescript
+interface UseChatMessagesReturn {
+  messages: ChatMessage[];
+  isLoading: boolean;
+  sendMessage: (content: string) => Promise<void>;
+  unreadCount: number;        // 채팅 패널 닫힌 상태에서 새 메시지 수
+  markAsRead: () => void;     // 패널 열 때 호출
+}
+
+function useChatMessages(roomId: string, senderId: string, senderName: string): UseChatMessagesReturn;
+```
+
+**구현 전략**:
+
+```typescript
+// 1. 입장 시 최근 50건 로드
+useEffect(() => {
+  const load = async () => {
+    const data = await bkend.data.list('chat-messages', {
+      roomId,
+      sort: 'createdAt',
+      limit: 50,
+    });
+    setMessages(data);
+    setLastFetched(new Date().toISOString());
+  };
+  load();
+}, [roomId]);
+
+// 2. 3초 polling으로 신규 메시지
+useEffect(() => {
+  const poll = async () => {
+    const newMsgs = await bkend.data.list('chat-messages', {
+      roomId,
+      createdAt_gt: lastFetched,
+      sort: 'createdAt',
+    });
+    if (newMsgs.length > 0) {
+      setMessages(prev => [...prev, ...newMsgs]);
+      setLastFetched(new Date().toISOString());
+      if (!isChatOpen) setUnreadCount(c => c + newMsgs.length);
+    }
+  };
+  const interval = setInterval(poll, 3000);
+  return () => clearInterval(interval);
+}, [roomId, lastFetched, isChatOpen]);
+
+// 3. 메시지 전송
+const sendMessage = async (content: string) => {
+  const msg: Omit<ChatMessage, '_id' | 'createdAt'> = {
+    roomId, senderId, senderName, content,
+  };
+  await bkend.data.create('chat-messages', msg);
+};
+```
+
 ---
 
-## 6. API 명세 (v2)
+## 6. API 명세 (v3)
 
 ### 6.1 공개 방 리스트
 
@@ -293,6 +388,100 @@ Response: VideoRoom[]
 { "participants": [], "status": "ended", "endedAt": "2026-03-16T10:30:00Z" }
 ```
 
+### 6.5 채팅 메시지 조회 (NEW v3)
+
+**GET `/data/chat-messages`**
+```
+Query: roomId=:id&sort=createdAt&limit=50
+Response: ChatMessage[]
+```
+
+**신규 메시지 polling용**:
+```
+Query: roomId=:id&createdAt_gt=:lastFetched&sort=createdAt
+Response: ChatMessage[]
+```
+
+### 6.6 채팅 메시지 전송 (NEW v3)
+
+**POST `/data/chat-messages`**
+```json
+// Request
+{
+  "roomId": "room_abc",
+  "senderId": "user_xyz",
+  "senderName": "user_xyz",
+  "content": "안녕하세요!"
+}
+// Response: ChatMessage
+```
+
+---
+
+## 4-2. 컴포넌트 설계 (v3 신규)
+
+### ChatPanel
+
+```typescript
+interface ChatPanelProps {
+  roomId: string;
+  senderId: string;
+  senderName: string;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+// 역할: MessageList + MessageInput 통합 컨테이너
+// 너비: 320px (고정), 우측 슬라이드-인
+// isOpen=false 시 DOM에는 존재하되 display:none
+```
+
+### MessageList
+
+```typescript
+interface MessageListProps {
+  messages: ChatMessage[];
+}
+
+// 역할: 스크롤 가능한 메시지 목록
+// 새 메시지 수신 시 자동 스크롤 (scrollIntoView)
+// 날짜 구분선 표시 (같은 날짜 메시지 그룹화)
+```
+
+### MessageItem
+
+```typescript
+interface MessageItemProps {
+  message: ChatMessage;
+  isMine: boolean;  // senderId === currentUserId
+}
+
+// isMine=true  → 우측 정렬, 파란색 말풍선
+// isMine=false → 좌측 정렬, 회색 말풍선 + 이름 표시
+// 시각: HH:mm 형식
+```
+
+### MessageInput
+
+```typescript
+interface MessageInputProps {
+  onSend: (content: string) => void;
+  disabled?: boolean;
+}
+
+// textarea (1줄, 최대 500자)
+// Enter: 전송, Shift+Enter: 줄바꿈
+// 전송 후 입력창 초기화
+```
+
+### ControlBar (수정)
+
+```typescript
+// 기존 버튼 + 채팅 토글 버튼 추가
+// 채팅 토글 버튼: unreadCount > 0 시 뱃지 표시
+// 아이콘: MessageSquare (lucide-react)
+```
+
 ---
 
 ## 7. UI 레이아웃
@@ -331,6 +520,36 @@ Response: VideoRoom[]
 └────────────────────────────┘
 ```
 
+### 7.3 VideoRoom 페이지 (v3 - 화상+채팅 분할 레이아웃)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ /rooms/:roomId                                               │
+│                                                              │
+│  ┌──────────────────────────────────┐  ┌──────────────────┐  │
+│  │         VideoArea (flex-1)       │  │  ChatPanel 320px │  │
+│  │                                  │  │  ─────────────── │  │
+│  │  ┌────────┐  ┌────────┐          │  │  [발신자] 10:23  │  │
+│  │  │ 참여자A │  │ 참여자B │          │  │  안녕하세요!     │  │
+│  │  └────────┘  └────────┘          │  │                  │  │
+│  │                                  │  │  [나] 10:24      │  │
+│  │  ┌──────────────────────────┐    │  │  반갑습니다       │  │
+│  │  │ 내 화면 (PiP)            │    │  │                  │  │
+│  │  └──────────────────────────┘    │  │  ─────────────── │  │
+│  │                                  │  │  ┌────────────┐  │  │
+│  │  ─────────────────────────────── │  │  │ 메시지 입력│  │  │
+│  │  [카메라][마이크][화면공유][💬1][종료]│  │  └────────────┘  │  │
+│  └──────────────────────────────────┘  └──────────────────┘  │
+│                                        ↑ 토글로 열기/닫기     │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**채팅 패널 닫힌 상태** (기본):
+```
+[카메라][마이크][화면공유][💬 3][종료]
+                           ↑ 미읽음 뱃지
+```
+
 ---
 
 ## 8. userId 처리 전략 (인증 미구현 대응)
@@ -359,19 +578,29 @@ export function getTempUserId(): string {
 
 ## 9. 구현 체크리스트 (Do Phase 참조)
 
-### 수정 항목
+### 수정 항목 (v2 기존)
 - [ ] `src/types/video-chat.ts` — `name` 추가, `meetingId` 제거
 - [ ] `src/hooks/useVideoRoom.ts` — v2 타입 반영
 - [ ] `src/app/page.tsx` — VideoRoomList + CreateRoomModal 통합
 - [ ] `src/app/rooms/[roomId]/page.tsx` — getTempUserId() 사용
 
-### 신규 항목
+### 신규 항목 (v2)
 - [ ] `src/lib/user.ts` — getTempUserId() 유틸
 - [ ] `src/hooks/useVideoRoomList.ts` — 5초 polling
 - [ ] `src/components/features/video-chat/VideoRoomList.tsx`
 - [ ] `src/components/features/video-chat/VideoRoomCard.tsx`
 - [ ] `src/components/features/video-chat/CreateRoomModal.tsx`
 
+### 신규 항목 (v3 - 텍스트 채팅)
+- [ ] `src/types/chat.ts` — `ChatMessage` 인터페이스
+- [ ] `src/hooks/useChatMessages.ts` — 채팅 CRUD + 3초 polling
+- [ ] `src/components/features/video-chat/ChatPanel.tsx`
+- [ ] `src/components/features/video-chat/MessageList.tsx`
+- [ ] `src/components/features/video-chat/MessageItem.tsx`
+- [ ] `src/components/features/video-chat/MessageInput.tsx`
+- [ ] `src/components/features/video-chat/ControlBar.tsx` — 채팅 토글 + 뱃지 추가
+- [ ] `src/app/rooms/[roomId]/page.tsx` — 화상+채팅 분할 레이아웃
+
 ---
 
-**다음 단계**: `/pdca do video-chat` 으로 v2 구현 시작
+**다음 단계**: `/pdca do video-chat` 으로 v3 구현 시작

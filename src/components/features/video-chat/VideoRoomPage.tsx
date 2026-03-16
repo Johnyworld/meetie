@@ -10,6 +10,8 @@ import { ServerSignalMessage } from '@/types/video-chat';
 import { VideoGrid } from './VideoGrid';
 import { LocalVideo } from './LocalVideo';
 import { ControlBar } from './ControlBar';
+import { ChatPanel } from './ChatPanel';
+import { useChatMessages } from '@/hooks/useChatMessages';
 
 interface VideoRoomPageProps {
   roomId: string;
@@ -24,6 +26,13 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const { messages, sendMessage, unreadCount, markAsRead, markAsClosed } = useChatMessages(
+    roomId,
+    userId,
+    userId // senderName으로 userId 사용 (인증 미구현 시)
+  );
 
   // ref에 최신 핸들러를 저장 - stale closure 방지
   const handlersRef = useRef({
@@ -120,6 +129,17 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
     }
   }, [isScreenSharing]);
 
+  const toggleChat = useCallback(() => {
+    setIsChatOpen((prev) => {
+      if (!prev) {
+        markAsRead();
+      } else {
+        markAsClosed();
+      }
+      return !prev;
+    });
+  }, [markAsRead, markAsClosed]);
+
   const handleLeave = useCallback(async () => {
     localStream?.getTracks().forEach((t) => t.stop());
     await leaveRoom(userId);
@@ -143,17 +163,31 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
   }
 
   return (
-    <div className="relative w-full h-screen bg-gray-900 overflow-hidden">
-      <VideoGrid remoteStreams={remoteStreams} />
-      <LocalVideo stream={localStream} isCameraOn={isCameraOn} />
-      <ControlBar
-        isCameraOn={isCameraOn}
-        isMicOn={isMicOn}
-        isScreenSharing={isScreenSharing}
-        onToggleCamera={toggleCamera}
-        onToggleMic={toggleMic}
-        onToggleScreenShare={toggleScreenShare}
-        onLeave={handleLeave}
+    <div className="flex w-full h-screen bg-gray-900 overflow-hidden">
+      {/* 영상 영역 */}
+      <div className="relative flex-1 overflow-hidden">
+        <VideoGrid remoteStreams={remoteStreams} />
+        <LocalVideo stream={localStream} isCameraOn={isCameraOn} />
+        <ControlBar
+          isCameraOn={isCameraOn}
+          isMicOn={isMicOn}
+          isScreenSharing={isScreenSharing}
+          isChatOpen={isChatOpen}
+          unreadCount={unreadCount}
+          onToggleCamera={toggleCamera}
+          onToggleMic={toggleMic}
+          onToggleScreenShare={toggleScreenShare}
+          onToggleChat={toggleChat}
+          onLeave={handleLeave}
+        />
+      </div>
+      {/* 채팅 패널 */}
+      <ChatPanel
+        messages={messages}
+        currentUserId={userId}
+        isOpen={isChatOpen}
+        onClose={toggleChat}
+        onSend={sendMessage}
       />
     </div>
   );
