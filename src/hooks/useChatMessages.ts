@@ -9,6 +9,19 @@ export function useChatMessages(roomId: string, senderId: string, senderName: st
   const [isLoading, setIsLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const isChatOpenRef = useRef(false);
+  const lastCreatedAtRef = useRef<string | null>(null);
+
+  const mergeNewMessages = useCallback((incoming: ChatMessage[]) => {
+    if (incoming.length === 0) return;
+    setMessages((prev) => {
+      const existingIds = new Set(prev.map((m) => m.id));
+      const fresh = incoming.filter((m) => !existingIds.has(m.id));
+      if (fresh.length === 0) return prev;
+      if (!isChatOpenRef.current) setUnreadCount((c) => c + fresh.length);
+      return [...prev, ...fresh];
+    });
+    lastCreatedAtRef.current = incoming[incoming.length - 1].created_at;
+  }, []);
 
   // 입장 시 최근 50건 로드
   useEffect(() => {
@@ -19,11 +32,14 @@ export function useChatMessages(roomId: string, senderId: string, senderName: st
       .order('created_at', { ascending: true })
       .limit(50)
       .then(({ data }) => {
-        if (data) setMessages(data as ChatMessage[]);
+        if (data && data.length > 0) {
+          setMessages(data as ChatMessage[]);
+          lastCreatedAtRef.current = data[data.length - 1].created_at;
+        }
         setIsLoading(false);
       });
 
-    // Realtime 구독 - 새 메시지 실시간 수신 (클라이언트 필터링이 더 안정적)
+    // Realtime 구독 (작동 시 즉시 반영)
     const subscription = supabase
       .channel(`chat:${roomId}`)
       .on(
@@ -32,20 +48,30 @@ export function useChatMessages(roomId: string, senderId: string, senderName: st
         (payload) => {
           const newMsg = payload.new as ChatMessage;
           if (newMsg.room_id !== roomId) return;
-          // 이미 추가된 메시지(낙관적 업데이트) 중복 방지
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === newMsg.id)) return prev;
-            if (!isChatOpenRef.current) setUnreadCount((c) => c + 1);
-            return [...prev, newMsg];
-          });
+          mergeNewMessages([newMsg]);
         }
       )
       .subscribe();
 
+    // 3초 polling 폴백 (Realtime이 작동하지 않을 경우 대비)
+    const interval = setInterval(async () => {
+      const query = supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('room_id', roomId)
+        .order('created_at', { ascending: true });
+      if (lastCreatedAtRef.current) {
+        query.gt('created_at', lastCreatedAtRef.current);
+      }
+      const { data } = await query;
+      if (data && data.length > 0) mergeNewMessages(data as ChatMessage[]);
+    }, 3000);
+
     return () => {
       supabase.removeChannel(subscription);
+      clearInterval(interval);
     };
-  }, [roomId]);
+  }, [roomId, mergeNewMessages]);
 
   const sendMessage = useCallback(
     async (content: string) => {
