@@ -199,20 +199,22 @@ src/
 
 #### `src/components/features/auth/LoginForm.tsx`
 ```
-Props: 없음
-State: email, password, error
+Props: email, setEmail, password, setPassword  ← login/page.tsx에서 상태 공유
+State: error (내부)
 Actions: handleSubmit → useAuth().signIn(email, password)
 성공: router.push('/')
 실패: error 메시지 표시
 ```
 
+> 로그인 ↔ 회원가입 탭 전환 시 입력값이 유지되도록 email/password 상태를 부모(login/page.tsx)에서 관리한다.
+
 #### `src/components/features/auth/RegisterForm.tsx`
 ```
-Props: 없음
-State: email, password, nickname, error
+Props: email, setEmail, password, setPassword  ← login/page.tsx에서 상태 공유
+State: nickname, confirmPassword, error (내부)
 Validation:
-  - email: 이메일 형식
   - password: 최소 8자
+  - confirmPassword: password와 일치 여부
   - nickname: 2~20자, 공백 불가
 Actions: handleSubmit → useAuth().signUp(email, password, nickname)
 성공: router.push('/')
@@ -271,6 +273,19 @@ interface AuthState {
 }
 ```
 
+Zustand `persist` 미들웨어로 `localStorage`에 상태를 유지한다.
+
+```typescript
+// persist 설정
+{
+  name: 'meetie-auth',   // localStorage key
+  version: 1,
+  migrate: () => ({ user: null, isLoading: false }),  // 버전 변경 시 초기화
+}
+```
+
+> 페이지 새로고침 후에도 `user` 상태가 복원되며, 이후 `fetchMe()`로 Supabase 세션과 동기화된다.
+
 #### `src/components/ui/ProtectedRoute.tsx`
 ```typescript
 // Client Component
@@ -324,13 +339,31 @@ ProtectedRoute
 
 ## 6. 에러 처리
 
-| 상황 | Supabase 에러 | UI 표시 |
-|------|--------------|---------|
-| 이메일 중복 | "User already registered" | "이미 사용 중인 이메일입니다." |
-| 잘못된 로그인 | "Invalid login credentials" | "이메일 또는 비밀번호가 올바르지 않습니다." |
+| 상황 | 감지 방법 | UI 표시 |
+|------|----------|---------|
+| 이메일 중복 (이메일 가입) | `data.user.email_confirmed_at` 존재 | "이미 사용 중인 이메일입니다." |
+| 이메일 중복 (Google OAuth 가입) | `data.user.identities.length === 0` | "이미 사용 중인 이메일입니다." |
+| 잘못된 로그인 | Supabase 에러: "Invalid login credentials" | "이메일 또는 비밀번호가 올바르지 않습니다." |
 | 비밀번호 8자 미만 | 클라이언트 유효성 검사 | "비밀번호는 8자 이상이어야 합니다." |
+| 비밀번호 불일치 | 클라이언트 유효성 검사 | "비밀번호가 일치하지 않습니다." |
 | 닉네임 공백 | 클라이언트 유효성 검사 | "닉네임을 입력해주세요." |
+| 닉네임 길이 위반 | 클라이언트 유효성 검사 | "닉네임은 2~20자여야 합니다." |
 | 네트워크 오류 | 기타 error | "오류가 발생했습니다. 다시 시도해주세요." |
+
+### Supabase 이메일 중복 감지 주의사항
+
+Supabase에서 **Email Confirmation이 활성화된 경우**, 이미 가입된 이메일로 `signUp` 호출 시 에러를 반환하지 않고 기존 유저 객체를 반환한다. 따라서 클라이언트에서 직접 중복을 판별해야 한다.
+
+```typescript
+// auth-store.ts signUp 내부
+const isAlreadyRegisteredByEmail = data.user?.email_confirmed_at;   // 이메일 가입 중복
+const isAlreadyRegisteredByOAuth = data.user?.identities?.length === 0; // OAuth 가입 중복
+if (isAlreadyRegisteredByEmail || isAlreadyRegisteredByOAuth) {
+  throw new Error('already registered');
+}
+```
+
+> RegisterForm에서는 `message.includes('already registered')`로 에러를 감지해 UI 메시지를 표시한다.
 
 ---
 

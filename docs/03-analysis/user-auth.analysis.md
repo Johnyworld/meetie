@@ -97,12 +97,19 @@
 | G-03 | `AuthInitializer` 컴포넌트 추가 (layout.tsx Server Component 분리) | 낮음 |
 | G-04 | Zustand `persist` 미들웨어 사용 (설계서 미반영) | 낮음 |
 
+### 부분 구현 (기능 동작하나 설계와 불일치)
+
+| # | 내용 | 설계 | 구현 | 우선순위 |
+|---|------|------|------|---------|
+| G-05 | 닉네임 "공백 불가" 유효성 검사 | 공백 금지 | `trim()`만 적용 — "a b" 같은 내부 공백 허용 | 중간 |
+
 ### 아키텍처 개선 권장
 
 | # | 내용 | 우선순위 |
 |---|------|---------|
-| G-05 | `setup-profile/page.tsx`에서 Supabase 직접 호출 → auth-store 경유 권장 | 낮음 |
-| G-06 | `callback/route.ts`에서 `createClient()` 인라인 → 공유 클라이언트 사용 권장 | 낮음 |
+| G-06 | `setup-profile/page.tsx`에서 Supabase 직접 호출 → auth-store 경유 권장 | 낮음 |
+| G-07 | `callback/route.ts`에서 `createClient()` 인라인 → 공유 클라이언트 사용 권장 | 낮음 |
+| G-08 | `src/lib/user.ts`의 `getTempUserId()` 미사용 함수 — 삭제 권장 | 낮음 |
 
 ---
 
