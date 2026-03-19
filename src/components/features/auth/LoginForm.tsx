@@ -26,6 +26,8 @@ export function LoginForm({ email, setEmail, password, setPassword }: LoginFormP
       const message = err instanceof Error ? err.message : String(err);
       if (message.includes('Invalid login credentials')) {
         setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+      } else if (message.includes('email_not_confirmed') || message.includes('Email not confirmed')) {
+        setError('이메일 인증이 완료되지 않았습니다. 회원가입 시 발송된 인증 메일을 확인해주세요.');
       } else {
         setError('오류가 발생했습니다. 다시 시도해주세요.');
       }
