@@ -2,19 +2,9 @@
   "version": "2.0",
   "lastUpdated": "2026-03-19T08:52:06.431Z",
   "activeFeatures": [
-    "video-chat",
-    "meetie",
-    "[roomId]",
-    "[...path]",
-    "stores",
-    "leave",
-    "auth",
-    "login",
-    "callback",
-    "setup-profile",
-    "ui"
+    "video-chat"
   ],
-  "primaryFeature": "meetie",
+  "primaryFeature": "video-chat",
   "features": {
     "video-chat": {
       "phase": "do",
@@ -32,135 +22,13 @@
       "phaseNumber": 3,
       "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/video-chat/CreateRoomModal.tsx"
     },
-    "meetie": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
+    "user-auth": {
+      "phase": "archived",
+      "matchRate": 91,
       "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-16T02:56:19.614Z",
-        "lastUpdated": "2026-03-19T01:56:24.869Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/page.tsx"
-    },
-    "[roomId]": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
-      "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-16T02:58:20.257Z",
-        "lastUpdated": "2026-03-19T01:56:29.731Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/rooms/[roomId]/page.tsx"
-    },
-    "[...path]": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
-      "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-16T04:24:11.192Z",
-        "lastUpdated": "2026-03-16T04:24:47.043Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/api/bkend/[...path]/route.ts"
-    },
-    "stores": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
-      "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-16T06:13:40.943Z",
-        "lastUpdated": "2026-03-19T05:54:25.444Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/stores/auth-store.ts"
-    },
-    "leave": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
-      "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-16T09:34:01.071Z",
-        "lastUpdated": "2026-03-16T09:34:01.071Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/api/rooms/leave/route.ts"
-    },
-    "auth": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
-      "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-19T01:54:53.523Z",
-        "lastUpdated": "2026-03-19T08:52:06.430Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/auth/RegisterForm.tsx"
-    },
-    "login": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
-      "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-19T01:55:33.355Z",
-        "lastUpdated": "2026-03-19T05:03:45.821Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/(auth)/login/page.tsx"
-    },
-    "callback": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
-      "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-19T01:55:45.164Z",
-        "lastUpdated": "2026-03-19T01:55:45.164Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/auth/callback/route.ts"
-    },
-    "setup-profile": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
-      "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-19T01:55:58.195Z",
-        "lastUpdated": "2026-03-19T01:55:58.195Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/(auth)/setup-profile/page.tsx"
-    },
-    "ui": {
-      "phase": "do",
-      "phaseNumber": 3,
-      "matchRate": null,
-      "iterationCount": 0,
-      "requirements": [],
-      "documents": {},
-      "timestamps": {
-        "started": "2026-03-19T01:56:03.736Z",
-        "lastUpdated": "2026-03-19T01:56:14.711Z"
-      },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/ui/AuthInitializer.tsx"
+      "startedAt": "2026-03-19T01:54:53.523Z",
+      "archivedAt": "2026-03-19T08:52:06.431Z",
+      "archivedTo": "docs/archive/2026-03/user-auth/"
     }
   },
   "pipeline": {
