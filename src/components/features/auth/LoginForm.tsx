@@ -4,11 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
-export function LoginForm() {
+interface LoginFormProps {
+  email: string;
+  setEmail: (v: string) => void;
+  password: string;
+  setPassword: (v: string) => void;
+}
+
+export function LoginForm({ email, setEmail, password, setPassword }: LoginFormProps) {
   const router = useRouter();
   const { signIn, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -13,6 +13,8 @@ export default function LoginPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const [tab, setTab] = useState<Tab>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     if (user) router.replace('/');
@@ -47,7 +49,11 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {tab === 'login' ? <LoginForm /> : <RegisterForm />}
+          {tab === 'login' ? (
+            <LoginForm email={email} setEmail={setEmail} password={password} setPassword={setPassword} />
+          ) : (
+            <RegisterForm email={email} setEmail={setEmail} password={password} setPassword={setPassword} />
+          )}
 
           <div className="my-5 flex items-center gap-3">
             <div className="h-px flex-1 bg-gray-700" />

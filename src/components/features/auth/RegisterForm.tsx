@@ -4,11 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
-export function RegisterForm() {
+interface RegisterFormProps {
+  email: string;
+  setEmail: (v: string) => void;
+  password: string;
+  setPassword: (v: string) => void;
+}
+
+export function RegisterForm({ email, setEmail, password, setPassword }: RegisterFormProps) {
   const router = useRouter();
   const { signUp, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
