@@ -10,10 +10,12 @@ export function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
   const validate = () => {
     if (password.length < 8) return '비밀번호는 8자 이상이어야 합니다.';
+    if (password !== confirmPassword) return '비밀번호가 일치하지 않습니다.';
     if (!nickname.trim()) return '닉네임을 입력해주세요.';
     if (nickname.trim().length < 2 || nickname.trim().length > 20) return '닉네임은 2~20자여야 합니다.';
     return null;
@@ -64,6 +66,17 @@ export function RegisterForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
           placeholder="8자 이상 입력하세요"
+          className="w-full rounded-xl border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-blue-500"
+        />
+      </div>
+      <div>
+        <label className="mb-1.5 block text-sm text-gray-400">비밀번호 확인</label>
+        <input
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          placeholder="비밀번호를 다시 입력하세요"
           className="w-full rounded-xl border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-blue-500"
         />
       </div>
