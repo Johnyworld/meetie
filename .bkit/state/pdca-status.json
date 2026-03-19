@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-19T05:03:45.821Z",
+  "lastUpdated": "2026-03-19T05:54:25.444Z",
   "activeFeatures": [
     "video-chat",
     "meetie",
@@ -80,7 +80,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T06:13:40.943Z",
-        "lastUpdated": "2026-03-19T02:20:16.164Z"
+        "lastUpdated": "2026-03-19T05:54:25.444Z"
       },
       "lastFile": "/Users/gimjaehwan/dev/meetie/src/stores/auth-store.ts"
     },
@@ -171,7 +171,7 @@
   "session": {
     "startedAt": "2026-03-16T02:52:52.065Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-19T05:03:45.821Z"
+    "lastActivity": "2026-03-19T05:54:25.444Z"
   },
   "history": [
     {
@@ -867,6 +867,60 @@
     {
       "timestamp": "2026-03-19T05:03:45.821Z",
       "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T05:11:12.540Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T05:25:21.019Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T05:32:09.343Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T05:34:43.582Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T05:36:20.566Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T05:43:37.295Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T05:50:58.049Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T05:53:08.156Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T05:54:25.444Z",
+      "feature": "stores",
       "phase": "do",
       "action": "updated"
     }

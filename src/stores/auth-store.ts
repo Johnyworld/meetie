@@ -16,22 +16,18 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    set => ({
       user: null,
       isLoading: false,
 
-      setUser: (user) => set({ user }),
+      setUser: user => set({ user }),
 
       signIn: async (email, password) => {
         set({ isLoading: true });
         try {
           const { data, error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) throw error;
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', data.user.id)
-            .single();
+          const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
           set({
             user: {
               id: data.user.id,
@@ -56,6 +52,11 @@ export const useAuthStore = create<AuthState>()(
             options: { data: { nickname } },
           });
           if (error) throw error;
+          const isAlreadyRegisteredByEmail = data.user?.email_confirmed_at;
+          const isAlreadyRegisteredByOAuth = data.user?.identities?.length === 0;
+          if (isAlreadyRegisteredByEmail || isAlreadyRegisteredByOAuth) {
+            throw new Error('already registered');
+          }
           set({
             user: {
               id: data.user!.id,
@@ -87,16 +88,14 @@ export const useAuthStore = create<AuthState>()(
       },
 
       fetchMe: async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) {
           set({ user: null });
           return;
         }
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
         set({
           user: {
             id: user.id,
@@ -111,6 +110,6 @@ export const useAuthStore = create<AuthState>()(
       name: 'meetie-auth',
       version: 1,
       migrate: () => ({ user: null, isLoading: false }),
-    }
-  )
+    },
+  ),
 );
