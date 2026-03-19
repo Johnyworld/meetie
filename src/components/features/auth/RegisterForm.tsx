@@ -22,6 +22,7 @@ export function RegisterForm({ email, setEmail, password, setPassword }: Registe
     if (password.length < 8) return '비밀번호는 8자 이상이어야 합니다.';
     if (password !== confirmPassword) return '비밀번호가 일치하지 않습니다.';
     if (!nickname.trim()) return '닉네임을 입력해주세요.';
+    if (/\s/.test(nickname)) return '닉네임에 공백을 사용할 수 없습니다.';
     if (nickname.trim().length < 2 || nickname.trim().length > 20) return '닉네임은 2~20자여야 합니다.';
     return null;
   };
