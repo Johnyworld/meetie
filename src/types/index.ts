@@ -13,6 +13,23 @@ export interface User {
   avatar_url?: string;
 }
 
+// Auth
+export interface Profile {
+  id: string;
+  email: string;
+  nickname: string;
+  provider: 'email' | 'google';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  nickname: string;
+  provider: 'email' | 'google';
+}
+
 // API error
 export interface ApiError {
   message: string;

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { getTempUserId } from '@/lib/user';
+import { useAuthStore } from '@/stores/auth-store';
 
 interface CreateRoomModalProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ interface CreateRoomModalProps {
 
 export function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProps) {
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
@@ -32,7 +33,7 @@ export function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProps) {
     setIsCreating(true);
     setError('');
     try {
-      const userId = getTempUserId();
+      const userId = user?.nickname ?? user?.id ?? 'unknown';
       const { data: room, error: supabaseError } = await supabase
         .from('video_rooms')
         .insert({

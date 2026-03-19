@@ -13,12 +13,20 @@
     }
   },
   "pdca": {
-    "current_phase": "plan",
-    "features": []
+    "current_phase": "check",
+    "current_feature": "user-auth",
+    "features": [
+      {
+        "name": "user-auth",
+        "phase": "check",
+        "matchRate": 91,
+        "startedAt": "2026-03-19"
+      }
+    ]
   },
-  "sessionCount": 8,
+  "sessionCount": 10,
   "lastSession": {
-    "startedAt": "2026-03-16T11:40:57.969Z",
+    "startedAt": "2026-03-19T01:42:56.887Z",
     "platform": "claude",
     "level": "Dynamic"
   }

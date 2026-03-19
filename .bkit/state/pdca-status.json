@@ -1,13 +1,18 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-16T13:05:14.879Z",
+  "lastUpdated": "2026-03-19T02:20:16.164Z",
   "activeFeatures": [
     "video-chat",
     "meetie",
     "[roomId]",
     "[...path]",
     "stores",
-    "leave"
+    "leave",
+    "auth",
+    "login",
+    "callback",
+    "setup-profile",
+    "ui"
   ],
   "primaryFeature": "meetie",
   "features": {
@@ -22,10 +27,10 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T00:00:00Z",
-        "lastUpdated": "2026-03-16T12:54:11.349Z"
+        "lastUpdated": "2026-03-19T02:10:00.807Z"
       },
       "phaseNumber": 3,
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/video-chat/VideoRoomPage.tsx"
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/video-chat/CreateRoomModal.tsx"
     },
     "meetie": {
       "phase": "do",
@@ -36,9 +41,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T02:56:19.614Z",
-        "lastUpdated": "2026-03-16T13:05:14.879Z"
+        "lastUpdated": "2026-03-19T01:56:24.869Z"
       },
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/hooks/useVideoSignaling.ts"
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/page.tsx"
     },
     "[roomId]": {
       "phase": "do",
@@ -49,7 +54,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T02:58:20.257Z",
-        "lastUpdated": "2026-03-16T04:06:31.805Z"
+        "lastUpdated": "2026-03-19T01:56:29.731Z"
       },
       "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/rooms/[roomId]/page.tsx"
     },
@@ -75,7 +80,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T06:13:40.943Z",
-        "lastUpdated": "2026-03-16T06:13:40.943Z"
+        "lastUpdated": "2026-03-19T02:20:16.164Z"
       },
       "lastFile": "/Users/gimjaehwan/dev/meetie/src/stores/auth-store.ts"
     },
@@ -91,6 +96,71 @@
         "lastUpdated": "2026-03-16T09:34:01.071Z"
       },
       "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/api/rooms/leave/route.ts"
+    },
+    "auth": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-19T01:54:53.523Z",
+        "lastUpdated": "2026-03-19T01:55:17.401Z"
+      },
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/auth/GoogleLoginButton.tsx"
+    },
+    "login": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-19T01:55:33.355Z",
+        "lastUpdated": "2026-03-19T01:55:33.355Z"
+      },
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/(auth)/login/page.tsx"
+    },
+    "callback": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-19T01:55:45.164Z",
+        "lastUpdated": "2026-03-19T01:55:45.164Z"
+      },
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/auth/callback/route.ts"
+    },
+    "setup-profile": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-19T01:55:58.195Z",
+        "lastUpdated": "2026-03-19T01:55:58.195Z"
+      },
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/app/(auth)/setup-profile/page.tsx"
+    },
+    "ui": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-19T01:56:03.736Z",
+        "lastUpdated": "2026-03-19T01:56:14.711Z"
+      },
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/ui/AuthInitializer.tsx"
     }
   },
   "pipeline": {
@@ -101,7 +171,7 @@
   "session": {
     "startedAt": "2026-03-16T02:52:52.065Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-16T13:05:14.879Z"
+    "lastActivity": "2026-03-19T02:20:16.164Z"
   },
   "history": [
     {
@@ -641,6 +711,114 @@
     {
       "timestamp": "2026-03-16T13:05:14.879Z",
       "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:54:15.852Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:54:35.146Z",
+      "feature": "stores",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:54:39.149Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:54:53.523Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:55:04.120Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:55:17.401Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:55:33.355Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:55:45.164Z",
+      "feature": "callback",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:55:58.195Z",
+      "feature": "setup-profile",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:56:03.736Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:56:10.078Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:56:14.712Z",
+      "feature": "ui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:56:24.869Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T01:56:29.731Z",
+      "feature": "[roomId]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T02:09:51.585Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T02:09:57.113Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T02:10:00.807Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-19T02:20:16.164Z",
+      "feature": "stores",
       "phase": "do",
       "action": "updated"
     }

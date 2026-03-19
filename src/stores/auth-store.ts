@@ -1,18 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '@/lib/supabase';
-
-interface User {
-  id: string;
-  email: string;
-  name?: string;
-}
+import type { AuthUser } from '@/types';
 
 interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  setUser: (user: AuthUser | null) => void;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, nickname: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signOut: () => Promise<void>;
   fetchMe: () => Promise<void>;
 }
 
@@ -22,34 +20,97 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isLoading: false,
 
-      login: async (email: string, password: string) => {
+      setUser: (user) => set({ user }),
+
+      signIn: async (email, password) => {
         set({ isLoading: true });
         try {
           const { data, error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) throw error;
-          const u = data.user;
-          set({ user: { id: u.id, email: u.email!, name: u.user_metadata?.name }, isLoading: false });
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+          set({
+            user: {
+              id: data.user.id,
+              email: data.user.email!,
+              nickname: profile?.nickname ?? email.split('@')[0],
+              provider: 'email',
+            },
+            isLoading: false,
+          });
         } catch (error) {
           set({ isLoading: false });
           throw error;
         }
       },
 
-      logout: async () => {
+      signUp: async (email, password, nickname) => {
+        set({ isLoading: true });
+        try {
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { nickname } },
+          });
+          if (error) throw error;
+          set({
+            user: {
+              id: data.user!.id,
+              email: data.user!.email!,
+              nickname,
+              provider: 'email',
+            },
+            isLoading: false,
+          });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      signInWithGoogle: async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (error) throw error;
+      },
+
+      signOut: async () => {
         await supabase.auth.signOut();
         set({ user: null });
       },
 
       fetchMe: async () => {
-        const { data } = await supabase.auth.getUser();
-        if (data.user) {
-          const u = data.user;
-          set({ user: { id: u.id, email: u.email!, name: u.user_metadata?.name } });
-        } else {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
           set({ user: null });
+          return;
         }
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        set({
+          user: {
+            id: user.id,
+            email: user.email!,
+            nickname: profile?.nickname ?? user.email!.split('@')[0],
+            provider: (profile?.provider ?? 'email') as 'email' | 'google',
+          },
+        });
       },
     }),
-    { name: 'meetie-auth' }
+    {
+      name: 'meetie-auth',
+      version: 1,
+      migrate: () => ({ user: null, isLoading: false }),
+    }
   )
 );
