@@ -4,11 +4,13 @@ import { useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ServerSignalMessage } from '@/types/video-chat';
 
-export function useVideoSignaling(roomId: string, userId: string, onMessage: (msg: ServerSignalMessage) => void) {
+export function useVideoSignaling(roomId: string, userId: string, onMessage: (msg: ServerSignalMessage) => void, ready: boolean = true) {
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const onMessageRef = useRef(onMessage);
   onMessageRef.current = onMessage;
   const isSubscribed = useRef(false);
+  const readyRef = useRef(ready);
+  readyRef.current = ready;
 
   useEffect(() => {
     const channel = supabase.channel(`video-room:${roomId}`, {
@@ -59,8 +61,11 @@ export function useVideoSignaling(roomId: string, userId: string, onMessage: (ms
         console.log('[Signaling] channel status:', status);
         if (status === 'SUBSCRIBED') {
           isSubscribed.current = true;
-          const trackResult = await channel.track({ userId });
-          console.log('[Signaling] track result:', trackResult);
+          // ready가 이미 true인 경우(권한 허용 완료) 즉시 track 전송
+          if (readyRef.current) {
+            const trackResult = await channel.track({ userId });
+            console.log('[Signaling] track result:', trackResult);
+          }
         }
       });
 
@@ -71,6 +76,16 @@ export function useVideoSignaling(roomId: string, userId: string, onMessage: (ms
       isSubscribed.current = false;
     };
   }, [roomId, userId]);
+
+  // localStream이 준비된 후에만 presence track 전송
+  // 브라우저 권한 허용 전에 track이 전송되면 상대방이 빈 트랙으로 WebRTC 연결을 맺는 버그 방지
+  useEffect(() => {
+    if (ready && isSubscribed.current && channelRef.current) {
+      channelRef.current.track({ userId }).then((result) => {
+        console.log('[Signaling] track result (after ready):', result);
+      });
+    }
+  }, [ready, userId]);
 
   const sendOffer = useCallback(
     (to: string, sdp: RTCSessionDescriptionInit) => {

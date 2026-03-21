@@ -62,7 +62,7 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
     }
   }, []);
 
-  const signaling = useVideoSignaling(roomId, userId, handleSignalMessage);
+  const signaling = useVideoSignaling(roomId, userId, handleSignalMessage, !!localStream);
   const { remoteStreams, createOffer, handleOffer, handleAnswer, handleIceCandidate, closePeer } =
     useWebRTC(localStream, userId, signaling);
 

@@ -1,8 +1,9 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-19T08:52:06.431Z",
+  "lastUpdated": "2026-03-21T11:11:14.077Z",
   "activeFeatures": [
-    "video-chat"
+    "video-chat",
+    "meetie"
   ],
   "primaryFeature": "video-chat",
   "features": {
@@ -17,10 +18,10 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-16T00:00:00Z",
-        "lastUpdated": "2026-03-19T02:10:00.807Z"
+        "lastUpdated": "2026-03-21T10:52:18.935Z"
       },
       "phaseNumber": 3,
-      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/video-chat/CreateRoomModal.tsx"
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/components/features/video-chat/VideoRoomPage.tsx"
     },
     "user-auth": {
       "phase": "archived",
@@ -29,6 +30,19 @@
       "startedAt": "2026-03-19T01:54:53.523Z",
       "archivedAt": "2026-03-19T08:52:06.431Z",
       "archivedTo": "docs/archive/2026-03/user-auth/"
+    },
+    "meetie": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-21T10:52:11.072Z",
+        "lastUpdated": "2026-03-21T11:11:14.077Z"
+      },
+      "lastFile": "/Users/gimjaehwan/dev/meetie/src/hooks/useWebRTC.ts"
     }
   },
   "pipeline": {
@@ -39,7 +53,7 @@
   "session": {
     "startedAt": "2026-03-16T02:52:52.065Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-19T08:52:06.431Z"
+    "lastActivity": "2026-03-21T11:11:14.077Z"
   },
   "history": [
     {
@@ -801,6 +815,30 @@
     {
       "timestamp": "2026-03-19T08:52:06.431Z",
       "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-21T10:52:11.072Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-21T10:52:18.935Z",
+      "feature": "video-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-21T10:53:02.116Z",
+      "feature": "meetie",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-21T11:11:14.077Z",
+      "feature": "meetie",
       "phase": "do",
       "action": "updated"
     }

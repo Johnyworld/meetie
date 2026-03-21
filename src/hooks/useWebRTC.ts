@@ -40,11 +40,14 @@ export function useWebRTC(
   }, [localStream, signaling]);
 
   const createOffer = useCallback(async (targetUserId: string) => {
+    // localStream 없이 offer를 생성하면 트랙 없는 peer가 peersRef에 저장됨
+    // 이후 상대방의 offer 도착 시 handleOffer가 기존 stale peer를 재사용해 영상 수신 불가해짐
+    if (!localStream) return;
     const pc = getOrCreatePeer(targetUserId);
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     signaling.sendOffer(targetUserId, offer);
-  }, [getOrCreatePeer, signaling]);
+  }, [getOrCreatePeer, signaling, localStream]);
 
   const handleOffer = useCallback(async (from: string, sdp: RTCSessionDescriptionInit) => {
     const pc = getOrCreatePeer(from);
