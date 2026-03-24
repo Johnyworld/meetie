@@ -83,7 +83,22 @@ export function VideoRoomPage({ roomId, userId }: VideoRoomPageProps) {
 
   // 로컬 스트림 초기화
   useEffect(() => {
-    getUserMedia().then(setLocalStream);
+    getUserMedia()
+      .then(setLocalStream)
+      .catch((err: Error) => {
+        if (err.name === 'NotFoundError') {
+          // 카메라/마이크 없을 때 오디오만 시도
+          getUserMedia({ video: false, audio: true })
+            .then(setLocalStream)
+            .catch(() => {
+              console.warn('사용 가능한 미디어 장치가 없습니다.');
+            });
+        } else if (err.name === 'NotAllowedError') {
+          console.warn('카메라/마이크 권한이 거부되었습니다.');
+        } else {
+          console.warn('미디어 장치 초기화 실패:', err.message);
+        }
+      });
     return () => {
       localStream?.getTracks().forEach((t) => t.stop());
     };
